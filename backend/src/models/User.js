@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const { getConnection } = require('../config/database');
 
+// Define the User schema
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -26,6 +27,7 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+// Hash the password before saving
 userSchema.pre('save', async function(next){
     try{
         if(!this.isModified('password')) return next();
@@ -39,6 +41,6 @@ userSchema.pre('save', async function(next){
     }
 });
 
+// get the connection and export the model
 const { user } = getConnection();
-
 module.exports = user.model('User', userSchema, 'user_credentials');
