@@ -1,0 +1,16 @@
+.env
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+/.env/ 
+*.env
+*.local
+*.cache
+*.tmp
+*.bak
