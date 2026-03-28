@@ -57,12 +57,7 @@ If you use it as a template, adjust at least:
 
 ### Backend Environment Setup
 
-Create a file at `backend/.env` with at least:
-
-```env
-PORT=3000
-MONGO_URI_AUTH=mongodb://127.0.0.1:27017/login_auth
-```
+Create a file at `backend/.env` with at least......
 
 ### Install Dependencies
 
