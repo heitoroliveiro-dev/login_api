@@ -1,197 +1,187 @@
-# Login API (Study Project)
+# Login API
 
-## Project Purpose
+Study project for building an authentication backend with Node.js, Express, MongoDB, JWT, and automated tests.
 
-This repository is a study project to build a login/authentication API with Node.js, Express, and MongoDB.
+## Features
 
-The main goals are:
+- Register users with input validation and password hashing.
+- Login users with credential verification and JWT generation.
+- Logout endpoint (client-side token discard model).
+- Protected route using JWT middleware.
+- MongoDB connection registry using Mongoose.
+- Integration tests for critical auth edge cases.
 
-1. Practice backend architecture for authentication.
-2. Understand Mongoose connection patterns.
-3. Build a clear development log to track technical learning.
-
-## Current Stack
+## Stack
 
 - Node.js (CommonJS)
-- Express
+- Express 5
 - MongoDB + Mongoose
-- dotenv
 - bcrypt
+- jsonwebtoken
+- dotenv
 - cors
+- Jest + Supertest
+- nodemon
 
-## Current Project Status
+## Project Structure
 
-Implemented:
+```
+backend/
+    index.js
+    package.json
+    src/
+        app.js
+        config/
+            database.js
+        controllers/
+            userController.js
+        middleware/
+            userMiddleware.js
+        models/
+            User.js
+        routes/
+            userRoutes.js
+    tests/
+        auth.test.js
+```
 
-1. Backend project initialized with npm.
-2. Core dependencies installed.
-3. Base server setup in `backend/index.js`.
-4. MongoDB connection module with connection registry in `backend/src/config/database.js`.
-5. Initial user schema in `backend/src/models/User.js`.
+## Environment Variables
 
-In progress:
+Create backend/.env with at least:
 
-1. Controller logic in `backend/src/controllers/userController.js`.
-2. Route definitions in `backend/src/routes/userRoutes.js`.
-3. Middleware logic in `backend/src/middleware/userMiddleware.js`.
-4. Frontend implementation in `frontend/src`.
+```dotenv
+PORT=3333
+JWT_SECRET=change_this_to_a_strong_secret
+JWT_EXPIRES_IN=1d
+MONGO_URI_AUTH=mongodb+srv://<user>:<password>@<cluster>/<database>?appName=loginService
+```
 
-## Can I Use This Project?
+Important:
 
-Yes. This project is open for study and experimentation.
+- Include a database name in MONGO_URI_AUTH (the /<database> part), otherwise MongoDB may default to test.
+- Do not commit real credentials.
 
-If you use it as a template, adjust at least:
+## Setup
 
-1. Environment variables.
-2. Validation rules.
-3. Authentication and security strategy.
-4. Error handling and logging.
-
-## How To Run
-
-### Requirements
-
-1. Node.js 18+
-2. npm
-3. MongoDB instance (local or cloud)
-
-### Backend Environment Setup
-
-Create a file at `backend/.env` with at least......
-
-### Install Dependencies
-
-From the `backend` folder:
+From backend:
 
 ```bash
 npm install
 ```
 
-### Start The API
+## Scripts
 
-From the `backend` folder:
-
-```bash
-node index.js
-```
-
-If successful, expected logs are similar to:
-
-```text
-MongoDB is connected!!
-Server is running on port 3000
-```
-
-### Quick Health Check
-
-Open in browser or test with curl:
-
-- `GET http://localhost:3000/`
-
-Expected response:
-
-```text
-API is running...
-```
-
-## Development Report (Progress + Learning Register)
-
-### 1) Environment Setup
-
-- Initialized backend with `npm init`.
-- Learned how project metadata is generated in `package.json`.
-
-Learning notes:
-
-- A clean setup phase helps avoid structure problems later.
-- `package.json` is the central contract of a Node project.
-
-### 2) Dependencies Installation
-
-Installed:
+From backend:
 
 ```bash
-npm install express mongoose bcrypt dotenv cors
+npm run dev
 ```
 
-What each dependency solves:
+Starts nodemon and reloads on file changes.
 
-- `express`: HTTP server and routing layer.
-- `mongoose`: ODM and database modeling.
-- `bcrypt`: password hashing.
-- `dotenv`: environment variable loading.
-- `cors`: cross-origin request control.
-
-Learning notes:
-
-- Installing only what is needed keeps the project focused.
-- Understanding each dependency's role helps architecture decisions.
-
-### 3) User Schema Modeling
-
-- Created an initial `User` schema with:
-    - `name`
-    - `email` (required, unique, lowercase, regex validation)
-    - `password` (required, minimum length)
-    - `createdAt`
-
-Learning notes:
-
-- Validation at schema level catches invalid data early.
-- `unique` helps consistency, but should be combined with proper error handling.
-
-### 4) Database Connection Architecture
-
-- Implemented connection code in `backend/src/config/database.js`.
-- Added a registry pattern (`getOrCreateRegistry`) to reuse the same connection.
-- Used `asPromise()` to await Mongoose connection startup.
-
-Learning notes:
-
-- Connection reuse prevents opening unnecessary duplicate connections.
-- Separation of concerns improves maintainability (`connectDB` vs `getConnection`).
-
-### 5) Environment Variable Debugging (Important Lesson)
-
-Observed issue:
-
-- Mongoose reported URI type problems because `process.env.MONGO_URI_AUTH` was `undefined`.
-
-Root cause:
-
-- `.env` resolution depends on process working directory by default.
-
-Applied fix:
-
-```js
-dotenv.config({
-    path: path.resolve(__dirname, '../../.env')
-});
+```bash
+npm start
 ```
 
-Learning notes:
+Starts the server normally.
 
-- `undefined` env vars usually indicate loading/path issues, not casting issues.
-- Explicit dotenv path makes behavior deterministic across different run locations.
+```bash
+npm test
+```
 
-### 6) Async Function Behavior (Important Lesson)
+Runs Jest integration tests.
 
-Observed concept:
+## API Endpoints
 
-- Turning a function into `async` changes its return type to `Promise`.
+Base path: /api/auth
 
-Learning notes:
+1. POST /register
 
-- If a function becomes `async`, callers must use `await` (or `.then`).
-- Many connection bugs come from forgetting this return-type shift.
+Request body:
 
-## Next Milestones
+```json
+{
+    "name": "Heitor",
+    "email": "heitor@mail.com",
+    "password": "123456"
+}
+```
 
-1. Implement register/login/logout controller logic.
-2. Wire routes into Express app.
-3. Add middleware for request validation and auth protection.
-4. Add scripts to `package.json` (`dev`, `start`).
-5. Add tests for auth flow and validation errors.
+Success: 201 Created
+
+Edge cases:
+
+- 400 for missing fields, invalid email format, or short password.
+- 409 for duplicate email.
+
+2. POST /login
+
+Request body:
+
+```json
+{
+    "email": "heitor@mail.com",
+    "password": "123456"
+}
+```
+
+Success: 200 OK with JWT token and user info.
+
+Edge cases:
+
+- 400 for missing email/password.
+- 401 for invalid credentials.
+
+3. POST /logout
+
+Success: 200 OK.
+
+Note: this API uses stateless JWT; logout is client-side token discard.
+
+4. GET /me (protected)
+
+Requires header:
+
+```text
+Authorization: Bearer <token>
+```
+
+Success: 200 OK with decoded user payload from middleware.
+
+Edge cases:
+
+- 401 when token is missing.
+- 401 when token is invalid or expired.
+
+## Middleware
+
+JWT protection is implemented in src/middleware/userMiddleware.js.
+
+Behavior:
+
+- Reads Authorization header.
+- Verifies Bearer token using JWT_SECRET.
+- Injects user data into req.user.
+- Blocks unauthorized requests with 401.
+
+## Tests
+
+Tests are in backend/tests/auth.test.js and currently cover:
+
+- Duplicate email on register returns 409.
+- Invalid password on login returns 401.
+- Invalid token on protected endpoint returns 401.
+
+Run:
+
+```bash
+npm test
+```
+
+## Notes
+
+- The password is hashed in a Mongoose pre-save hook in src/models/User.js.
+- Server bootstrap and app setup are split (index.js and src/app.js) to make integration testing easier.
 
 ## Author
 

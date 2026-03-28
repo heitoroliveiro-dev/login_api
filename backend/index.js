@@ -1,21 +1,9 @@
-const express = require('express');
 const dotenv = require('dotenv');
-const cors = require('cors');
 const { connectDB } = require('./src/config/database');
+const app = require('./src/app');
 
 // dotend configuration to read environment variables
 dotenv.config();
-
-// initialize express app
-const app = express();
-app.use(cors());
-app.use(express.json());
-/* app.use('api/auth', require('./routes/userRoutes')); */
-
-// test route
-app.get('/', (req, res) => {
-    res.send('API is running...')
-});
 
 const PORT = process.env.PORT;
 
